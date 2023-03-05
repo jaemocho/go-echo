@@ -1,0 +1,3 @@
+listen = ":1323"
+phase = "local"
+sqliteDBPath = "./gorm.db"
