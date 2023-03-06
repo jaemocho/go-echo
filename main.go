@@ -72,16 +72,16 @@ func serve(lifecycle fx.Lifecycle, echo *echo.Echo, cfg config.Config) {
 	})
 }
 
-//	@title		worklist Sample Swagger API
-//	@version	1.0
+// @title		worklist Sample Swagger API
+// @version	1.0
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in                         header
 // @name                       Authorization
 // @description                Accesskey based security scheme to secure api
 
-//	@host		localhost:1323
-//	@BasePath	/
+// @host		localhost:1323
+// @BasePath	/
 
 func main() {
 	app := NewApp()
