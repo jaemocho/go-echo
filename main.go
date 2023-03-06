@@ -5,6 +5,8 @@ package main
 import (
 	"backend/config"
 	githubRoute "backend/internal/pkg/github/route/http"
+	"backend/internal/pkg/security"
+	securityRoute "backend/internal/pkg/security/route/http"
 	userRoute "backend/internal/pkg/user/route/http"
 
 	"context"
@@ -24,6 +26,7 @@ import (
 func NewEcho() *echo.Echo {
 	e := echo.New()
 
+	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
@@ -41,6 +44,8 @@ func NewApp() *fx.App {
 			userRoute.NewUserHandler,
 			githubRoute.NewGithubHandler,
 			serve,
+			security.WebSecurityConfig,
+			securityRoute.NewSecurityHandler,
 		),
 	)
 }
@@ -67,10 +72,17 @@ func serve(lifecycle fx.Lifecycle, echo *echo.Echo, cfg config.Config) {
 	})
 }
 
-// @title worklist Sample Swagger API
-// @version 1.0
-// @host localhost:1323
-// @BasePath /
+//	@title		worklist Sample Swagger API
+//	@version	1.0
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in                         header
+// @name                       Authorization
+// @description                Accesskey based security scheme to secure api
+
+//	@host		localhost:1323
+//	@BasePath	/
+
 func main() {
 	app := NewApp()
 
@@ -84,13 +96,14 @@ func main() {
 
 }
 
-// @Summary Show the status of server.
-// @Description get the status of server.
-// @Tags root
-// @Accept */*
-// @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router / [get]
+// @Summary		Show the status of server.
+// @Description	get the status of server.
+// @Tags			root
+// @Accept			*/*
+// @Produce		json
+// @Success		200	{object}	map[string]interface{}
+// @Router			/ [get]
+// @Security    ApiKeyAuth
 func HealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": "Server is up and running",

@@ -40,7 +40,7 @@ definitions:
 host: localhost:1323
 info:
   contact: {}
-  title: Wookiist Sample Swagger API
+  title: worklist Sample Swagger API
   version: "1.0"
 paths:
   /:
@@ -56,6 +56,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Show the status of server.
       tags:
       - root
@@ -79,6 +81,8 @@ paths:
             items:
               $ref: '#/definitions/domain.GitRepo'
             type: array
+      security:
+      - ApiKeyAuth: []
       summary: Get repos
   /api/v1/github/{owner}/{repo}:
     get:
@@ -105,7 +109,22 @@ paths:
             items:
               $ref: '#/definitions/domain.GitWorkflow'
             type: array
+      security:
+      - ApiKeyAuth: []
       summary: Get workflows
+  /api/v1/login:
+    get:
+      consumes:
+      - application/json
+      description: get access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: login (issue token)
   /api/v1/user:
     get:
       consumes:
@@ -120,6 +139,8 @@ paths:
             items:
               $ref: '#/definitions/model.User'
             type: array
+      security:
+      - ApiKeyAuth: []
       summary: Get users
     post:
       consumes:
@@ -137,6 +158,8 @@ paths:
       responses:
         "201":
           description: Created
+      security:
+      - ApiKeyAuth: []
       summary: Create user
   /api/v1/user/{id}:
     delete:
@@ -154,6 +177,8 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - ApiKeyAuth: []
       summary: delete user by id
     get:
       consumes:
@@ -172,6 +197,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.User'
+      security:
+      - ApiKeyAuth: []
       summary: Get user by id
     put:
       consumes:
@@ -194,5 +221,13 @@ paths:
       responses:
         "200":
           description: OK
+      security:
+      - ApiKeyAuth: []
       summary: update user by id
+securityDefinitions:
+  ApiKeyAuth:
+    description: Accesskey based security scheme to secure api
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

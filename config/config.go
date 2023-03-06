@@ -10,9 +10,10 @@ import (
 )
 
 type Config struct {
-	Listen       string `toml:"listen"`
-	Phase        string `toml:"phase"`
-	SqliteDBPath string `toml:"sqliteDBPath"`
+	Listen        string `toml:"listen"`
+	Phase         string `toml:"phase"`
+	SqliteDBPath  string `toml:"sqliteDBPath"`
+	JWTSigningKey string `toml:"jwtSigningKey"`
 }
 
 func New() (Config, error) {

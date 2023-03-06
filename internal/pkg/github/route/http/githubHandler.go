@@ -26,14 +26,15 @@ func NewGithubHandler(echo *echo.Echo) *GithubHandler {
 	return handler
 }
 
-// @Summary Get repos
-// @Description Get repos by owner
-// @name getReposByOwner
-// @Accept json
-// @Produce json
-// @Param owner path string true "owner of the repos"
-// @Success 200 {array} domain.GitRepo
-// @Router /api/v1/github/{owner} [get]
+// @Summary					Get repos
+// @Description				Get repos by owner
+// @name						getReposByOwner
+// @Accept						json
+// @Produce					json
+// @Param						owner	path	string	true	"owner of the repos"
+// @Success					200		{array}	domain.GitRepo
+// @Router						/api/v1/github/{owner} [get]
+// @Security    ApiKeyAuth
 func (g *GithubHandler) getReposByOwner(c echo.Context) error {
 
 	owner := c.Param("owner")
@@ -49,15 +50,16 @@ func (g *GithubHandler) getReposByOwner(c echo.Context) error {
 	return c.JSON(http.StatusOK, gitRepo)
 }
 
-// @Summary Get workflows
-// @Description Get workflows by owner, repo
-// @name getWorkflowsByRepo
-// @Accept json
-// @Produce json
-// @Param owner path string true "owner of the repo"
-// @Param repo path string true "repo of the workflows"
-// @Success 200 {array} domain.GitWorkflow
-// @Router /api/v1/github/{owner}/{repo} [get]
+// @Summary					Get workflows
+// @Description				Get workflows by owner, repo
+// @name						getWorkflowsByRepo
+// @Accept						json
+// @Produce					json
+// @Param						owner	path	string	true	"owner of the repo"
+// @Param						repo	path	string	true	"repo of the workflows"
+// @Success					200		{array}	domain.GitWorkflow
+// @Router						/api/v1/github/{owner}/{repo} [get]
+// @Security    ApiKeyAuth
 func (g *GithubHandler) getWorkflowsByRepo(c echo.Context) error {
 
 	owner := c.Param("owner")

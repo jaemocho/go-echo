@@ -5,7 +5,10 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/creasty/defaults v1.6.0
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/go-github/v50 v50.1.0
+	github.com/labstack/echo v3.3.10+incompatible
+	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/echo-swagger v1.3.5
@@ -18,6 +21,7 @@ require (
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.8 // indirect

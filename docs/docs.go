@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get the status of server.",
                 "consumes": [
                     "*/*"
@@ -41,6 +46,11 @@ const docTemplate = `{
         },
         "/api/v1/github/{owner}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get repos by owner",
                 "consumes": [
                     "application/json"
@@ -73,6 +83,11 @@ const docTemplate = `{
         },
         "/api/v1/github/{owner}/{repo}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get workflows by owner, repo",
                 "consumes": [
                     "application/json"
@@ -110,8 +125,33 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/login": {
+            "get": {
+                "description": "get access token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "login (issue token)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all user's info",
                 "consumes": [
                     "application/json"
@@ -133,6 +173,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create new user",
                 "consumes": [
                     "application/json"
@@ -161,6 +206,11 @@ const docTemplate = `{
         },
         "/api/v1/user/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get user's info",
                 "consumes": [
                     "application/json"
@@ -188,6 +238,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update user's info",
                 "consumes": [
                     "application/json"
@@ -221,6 +276,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "delete user's info",
                 "consumes": [
                     "application/json"
@@ -304,6 +364,14 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "Accesskey based security scheme to secure api",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
@@ -313,7 +381,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:1323",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Wookiist Sample Swagger API",
+	Title:            "worklist Sample Swagger API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
