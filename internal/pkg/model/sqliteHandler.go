@@ -2,7 +2,6 @@ package model
 
 import (
 	"backend/config"
-	"fmt"
 
 	"gorm.io/driver/sqlite" // Sqlite driver based on GGO
 	// "github.com/glebarez/sqlite" // Pure go SQLite driver, checkout https://github.com/glebarez/sqlite for details
@@ -51,7 +50,6 @@ func (s *sqliteHandler) DeleteUserById(id int) int64 {
 func (s *sqliteHandler) UpdateUserById(id int, user *User) int64 {
 	originUser := s.GetUserById(id)
 	if originUser == nil {
-		fmt.Println("user is nil")
 		return 0
 	}
 	result := s.db.Model(&originUser).Updates(&user)

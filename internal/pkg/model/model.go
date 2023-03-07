@@ -23,5 +23,12 @@ type DBHandler interface {
 }
 
 func NewDBHandler(cfg config.Config) DBHandler {
-	return NewSqliteHandler(cfg)
+	if cfg.DB == "postgre" {
+		return NewPostgreHandler(cfg)
+	} else if cfg.DB == "sqlite" {
+		return NewSqliteHandler(cfg)
+	} else {
+		return NewSqliteHandler(cfg)
+	}
+
 }
