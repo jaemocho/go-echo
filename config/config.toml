@@ -4,7 +4,7 @@ phase = "local"
 sqliteDBPath = "./gorm.db"
 jwtSigningKey = "jwtkey"
 
-githubToken = "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"
+githubToken = ""
 
 # db sqlite, postgre
 db ="postgre"
