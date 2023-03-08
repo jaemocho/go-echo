@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  domain.CreateGitRepo:
+    properties:
+      description:
+        type: string
+      isAutoInt:
+        type: boolean
+      isPrivate:
+        type: boolean
+      name:
+        type: string
+    type: object
   domain.GitRepo:
     properties:
       name:
@@ -84,7 +95,58 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get repos
+    post:
+      consumes:
+      - application/json
+      description: Create git Repo
+      parameters:
+      - description: owner of the repo
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repo Info body
+        in: body
+        name: repo
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateGitRepo'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create git Repo
   /api/v1/github/{owner}/{repo}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete git Repo
+      parameters:
+      - description: owner of the repo
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: repo
+        in: path
+        name: repo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete git Repo
     get:
       consumes:
       - application/json

@@ -49,7 +49,7 @@ func (s *sqliteHandler) DeleteUserById(id int) int64 {
 
 func (s *sqliteHandler) UpdateUserById(id int, user *User) int64 {
 	originUser := s.GetUserById(id)
-	if originUser == nil {
+	if originUser == nil || originUser.ID == 0 {
 		return 0
 	}
 	result := s.db.Model(&originUser).Updates(&user)

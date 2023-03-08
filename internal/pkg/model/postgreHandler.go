@@ -53,7 +53,7 @@ func (p *postgreHandler) DeleteUserById(id int) int64 {
 
 func (p *postgreHandler) UpdateUserById(id int, user *User) int64 {
 	originUser := p.GetUserById(id)
-	if originUser == nil {
+	if originUser == nil || originUser.ID == 0 {
 		return 0
 	}
 	result := p.db.Model(&originUser).Updates(&user)
