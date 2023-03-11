@@ -14,14 +14,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	cfg = config.Config{
+		GitHubToken: "",
+	}
+)
+
 func TestGetRepos(t *testing.T) {
 
 	e := echo.New()
 
-	cfg := config.Config{
-		GitHubToken: "",
-	}
-	gh := NewGithubHandler(e, cfg)
+	gh := NewGitHandler(e, cfg)
 
 	// 1. 조회 테스트 reop
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -53,11 +56,7 @@ func TestGetWorkflows(t *testing.T) {
 
 	e := echo.New()
 
-	cfg := config.Config{
-		GitHubToken: "",
-	}
-
-	gh := NewGithubHandler(e, cfg)
+	gh := NewGitHandler(e, cfg)
 
 	// 1. 조회 테스트 reop
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -89,13 +88,9 @@ func TestCreateRepo(t *testing.T) {
 
 	e := echo.New()
 
-	cfg := config.Config{
-		GitHubToken: "",
-	}
+	gh := NewGitHandler(e, cfg)
 
-	gh := NewGithubHandler(e, cfg)
-
-	body, _ := json.Marshal(&domain.CreateGitRepo{Name: "maketest123", Description: "create test", IsPrivate: false, IsAutoInt: false})
+	body, _ := json.Marshal(&domain.CreateGitRepoRequest{Name: "maketest123", Description: "create test", IsPrivate: false, IsAutoInt: false})
 
 	// 1. repo 생성 테스트
 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(body))
@@ -119,11 +114,7 @@ func TestDeleteRepo(t *testing.T) {
 
 	e := echo.New()
 
-	cfg := config.Config{
-		GitHubToken: "",
-	}
-
-	gh := NewGithubHandler(e, cfg)
+	gh := NewGitHandler(e, cfg)
 
 	// 1. repo 삭제 테스트
 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
@@ -136,6 +127,37 @@ func TestDeleteRepo(t *testing.T) {
 
 	if assert.NoError(t, gh.deleteRepo(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
+	}
+
+	t.Log(rec.Body)
+}
+
+func TestCreateIssue(t *testing.T) {
+	e := echo.New()
+
+	gh := NewGitHandler(e, cfg)
+
+	title := "test"
+	issueBody := "test body"
+	assignee := "jaemocho"
+	labels := []string{"bug", "number", "test handler"}
+	inputIssue := &domain.CreateGitIssueRequest{Title: title, Body: issueBody, Assignee: assignee, Labels: labels}
+
+	body, _ := json.Marshal(inputIssue)
+
+	// 1. repo 생성 테스트
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+
+	req.Header.Set("Content-Type", "application/json")
+
+	c := e.NewContext(req, rec)
+	c.SetPath("/:owner/:repo")
+	c.SetParamNames("owner", "repo")
+	c.SetParamValues("jaemocho", "Study-WebFlux_3")
+
+	if assert.NoError(t, gh.createIssue(c)) {
+		assert.Equal(t, http.StatusCreated, rec.Code)
 	}
 
 	t.Log(rec.Body)

@@ -8,13 +8,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type GithubHandler struct {
-	client *domain.GithubClientHandler
+type GitHandler struct {
+	client domain.GitClientHandler
 }
 
-func NewGithubHandler(echo *echo.Echo, cfg config.Config) *GithubHandler {
+func NewGitHandler(echo *echo.Echo, cfg config.Config) *GitHandler {
 
-	handler := &GithubHandler{
+	handler := &GitHandler{
 		client: domain.NewGithubClientHandler(cfg),
 	}
 
@@ -24,6 +24,9 @@ func NewGithubHandler(echo *echo.Echo, cfg config.Config) *GithubHandler {
 		github.POST("/:owner", handler.createRepo)
 		github.GET("/:owner/:repo", handler.getWorkflowsByRepo)
 		github.DELETE("/:owner/:repo", handler.deleteRepo)
+
+		github.POST("/issue/:owner/:repo", handler.createIssue)
+		github.GET("/issue/:owner/:repo", handler.getIssuesByRepo)
 	}
 
 	return handler
@@ -38,7 +41,7 @@ func NewGithubHandler(echo *echo.Echo, cfg config.Config) *GithubHandler {
 // @Success		200		{array}	domain.GitRepo
 // @Router		/api/v1/github/{owner} [get]
 // @Security    ApiKeyAuth
-func (g *GithubHandler) getReposByOwner(c echo.Context) error {
+func (g *GitHandler) getReposByOwner(c echo.Context) error {
 
 	owner := c.Param("owner")
 
@@ -47,13 +50,7 @@ func (g *GithubHandler) getReposByOwner(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	gitRepo := make([]domain.GitRepo, len(repos))
-
-	for i, v := range repos {
-		gitRepo[i].Name = v.GetName()
-	}
-
-	return c.JSON(http.StatusOK, gitRepo)
+	return c.JSON(http.StatusOK, repos)
 }
 
 // @Summary		Get workflows
@@ -66,7 +63,7 @@ func (g *GithubHandler) getReposByOwner(c echo.Context) error {
 // @Success		200		{array}	domain.GitWorkflow
 // @Router		/api/v1/github/{owner}/{repo} [get]
 // @Security    ApiKeyAuth
-func (g *GithubHandler) getWorkflowsByRepo(c echo.Context) error {
+func (g *GitHandler) getWorkflowsByRepo(c echo.Context) error {
 
 	owner := c.Param("owner")
 	repo := c.Param("repo")
@@ -77,14 +74,7 @@ func (g *GithubHandler) getWorkflowsByRepo(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, nil)
 	}
 
-	gitWorkflow := make([]domain.GitWorkflow, len(workflows))
-
-	for i, v := range workflows {
-		gitWorkflow[i].Name = v.GetName()
-		gitWorkflow[i].Id = v.GetID()
-	}
-
-	return c.JSON(http.StatusOK, gitWorkflow)
+	return c.JSON(http.StatusOK, workflows)
 }
 
 // @Summary		Create git Repo
@@ -93,13 +83,13 @@ func (g *GithubHandler) getWorkflowsByRepo(c echo.Context) error {
 // @Accept		json
 // @Produce		json
 // @Param		owner	path	string	true	"owner of the repo"
-// @Param		repo	body	domain.CreateGitRepo	true	"Repo Info body"
+// @Param		repo	body	domain.CreateGitRepoRequest	true	"Repo Info body"
 // @Success		201		{object} string
 // @Router		/api/v1/github/{owner} [post]
 // @Security	ApiKeyAuth
-func (g *GithubHandler) createRepo(c echo.Context) error {
+func (g *GitHandler) createRepo(c echo.Context) error {
 
-	gitRepo := new(domain.CreateGitRepo)
+	gitRepo := new(domain.CreateGitRepoRequest)
 
 	if err := c.Bind(gitRepo); err != nil {
 		c.Error(err)
@@ -112,7 +102,7 @@ func (g *GithubHandler) createRepo(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusCreated, repo.GetName()+" create success ")
+	return c.JSON(http.StatusCreated, repo.Name+" create success ")
 
 }
 
@@ -126,7 +116,7 @@ func (g *GithubHandler) createRepo(c echo.Context) error {
 // @Success		200		{object}	string
 // @Router		/api/v1/github/{owner}/{repo} [delete]
 // @Security    ApiKeyAuth
-func (g *GithubHandler) deleteRepo(c echo.Context) error {
+func (g *GitHandler) deleteRepo(c echo.Context) error {
 
 	owner := c.Param("owner")
 	repo := c.Param("repo")
@@ -139,4 +129,60 @@ func (g *GithubHandler) deleteRepo(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, repo+" delete success")
 
+}
+
+// @Summary		Create git Repo Issue
+// @Description	Create git Repo Issue
+// @name		createIssue
+// @Accept		json
+// @Produce		json
+// @Param		owner	path	string	true	"owner of the repo"
+// @Param		repo	path	string	true	"repo"
+// @Param		issue	body	domain.CreateGitIssueRequest	true	"Issue Info body"
+// @Success		201		{object} string
+// @Router		/api/v1/github/issue/{owner}/{repo} [post]
+// @Security	ApiKeyAuth
+func (g *GitHandler) createIssue(c echo.Context) error {
+
+	gitIssue := new(domain.CreateGitIssueRequest)
+
+	if err := c.Bind(gitIssue); err != nil {
+		c.Error(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	owner := c.Param("owner")
+	repo := c.Param("repo")
+
+	newIssue, err := g.client.CreateIssue(owner, repo, gitIssue)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusCreated, newIssue.Title+" create success ")
+
+}
+
+// @Summary		Get Issues by repo
+// @Description	Get Issues by repo
+// @name		getIssuesByRepo
+// @Accept		json
+// @Produce		json
+// @Param		owner	path	string	true	"owner of the repos"
+// @Param		repo	path	string	true	"repo"
+// @Success		200		{array}	domain.GitIssue
+// @Router		/api/v1/github/issue/{owner}/{repo} [get]
+// @Security    ApiKeyAuth
+func (g *GitHandler) getIssuesByRepo(c echo.Context) error {
+
+	owner := c.Param("owner")
+	repo := c.Param("repo")
+
+	issues, err := g.client.GetIssueList(owner, repo)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	return c.JSON(http.StatusOK, issues)
 }

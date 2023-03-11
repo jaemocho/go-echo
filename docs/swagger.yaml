@@ -1,6 +1,19 @@
 basePath: /
 definitions:
-  domain.CreateGitRepo:
+  domain.CreateGitIssueRequest:
+    properties:
+      assignee:
+        type: string
+      body:
+        type: string
+      labels:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    type: object
+  domain.CreateGitRepoRequest:
     properties:
       description:
         type: string
@@ -11,8 +24,29 @@ definitions:
       name:
         type: string
     type: object
+  domain.GitIssue:
+    properties:
+      assignee:
+        type: string
+      body:
+        type: string
+      labels:
+        items:
+          type: string
+        type: array
+      owner:
+        type: string
+      repo:
+        type: string
+      title:
+        type: string
+    type: object
   domain.GitRepo:
     properties:
+      description:
+        type: string
+      isPrivate:
+        type: boolean
       name:
         type: string
     type: object
@@ -110,7 +144,7 @@ paths:
         name: repo
         required: true
         schema:
-          $ref: '#/definitions/domain.CreateGitRepo'
+          $ref: '#/definitions/domain.CreateGitRepoRequest'
       produces:
       - application/json
       responses:
@@ -174,6 +208,65 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get workflows
+  /api/v1/github/issue/{owner}/{repo}:
+    get:
+      consumes:
+      - application/json
+      description: Get Issues by repo
+      parameters:
+      - description: owner of the repos
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: repo
+        in: path
+        name: repo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.GitIssue'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Get Issues by repo
+    post:
+      consumes:
+      - application/json
+      description: Create git Repo Issue
+      parameters:
+      - description: owner of the repo
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: repo
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Issue Info body
+        in: body
+        name: issue
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateGitIssueRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create git Repo Issue
   /api/v1/login:
     get:
       consumes:

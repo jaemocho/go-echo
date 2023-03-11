@@ -42,7 +42,7 @@ func NewApp() *fx.App {
 		),
 		fx.Invoke(
 			userRoute.NewUserHandler,
-			githubRoute.NewGithubHandler,
+			githubRoute.NewGitHandler,
 			serve,
 			security.WebSecurityConfig,
 			securityRoute.NewSecurityHandler,

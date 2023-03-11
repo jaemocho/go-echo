@@ -44,6 +44,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/github/issue/{owner}/{repo}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get Issues by repo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get Issues by repo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of the repos",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo",
+                        "name": "repo",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.GitIssue"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create git Repo Issue",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create git Repo Issue",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "owner of the repo",
+                        "name": "owner",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "repo",
+                        "name": "repo",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Issue Info body",
+                        "name": "issue",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateGitIssueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/github/{owner}": {
             "get": {
                 "security": [
@@ -108,7 +200,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CreateGitRepo"
+                            "$ref": "#/definitions/domain.CreateGitRepoRequest"
                         }
                     }
                 ],
@@ -387,7 +479,27 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.CreateGitRepo": {
+        "domain.CreateGitIssueRequest": {
+            "type": "object",
+            "properties": {
+                "assignee": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.CreateGitRepoRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -404,9 +516,41 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.GitIssue": {
+            "type": "object",
+            "properties": {
+                "assignee": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "repo": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.GitRepo": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "isPrivate": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 }

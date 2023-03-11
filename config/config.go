@@ -26,7 +26,7 @@ type Config struct {
 	JWTSigningKey string `toml:"jwtSigningKey"`
 	DB            string `toml:"db"`
 	Postgre       `toml:"postgre"`
-	GitHubToken   string `toml:"githubToken`
+	GitHubToken   string `toml:"githubToken"`
 }
 
 func New() (Config, error) {

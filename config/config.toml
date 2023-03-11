@@ -1,12 +1,17 @@
+# server info
 listen = ":1323"
 phase = "local"
 
-sqliteDBPath = "./gorm.db"
+# jwt signing key 
 jwtSigningKey = "jwtkey"
 
+# sqlite 사용 시 db 생성 경로 
+sqliteDBPath = "./gorm.db"
+
+# github auth token
 githubToken = ""
 
-# db sqlite, postgre
+# db 선택 sqlite or postgre
 db ="postgre"
 
 [postgre]
