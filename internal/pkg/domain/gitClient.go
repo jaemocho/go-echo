@@ -1,5 +1,7 @@
 package domain
 
+import "backend/config"
+
 // Github/GitLab/bitbucket client interface
 type GitClientHandler interface {
 	GetRepoList(owner string) ([]*GitRepo, error)
@@ -15,6 +17,7 @@ type GitRepo struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description"`
 	IsPrivate   bool   `json:"isPrivate"`
+	Id          string `json:"id,omitempty"`
 }
 
 type GitWorkflow struct {
@@ -43,4 +46,15 @@ type CreateGitIssueRequest struct {
 	Body     string   `json:"body,omitempty"`
 	Labels   []string `json:"labels,omitempty"`
 	Assignee string   `json:"assignee,omitempty"`
+}
+
+func NewGitClientHandler(cfg config.Config) GitClientHandler {
+	if cfg.GitClient == "github" {
+		return NewGithubClientHandler(cfg)
+	} else if cfg.GitClient == "gitlab" {
+		return NewGitlabClientHandler(cfg)
+	} else {
+		return NewGithubClientHandler(cfg)
+	}
+
 }

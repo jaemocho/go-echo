@@ -22,11 +22,15 @@ type Postgre struct {
 type Config struct {
 	Listen        string `toml:"listen"`
 	Phase         string `toml:"phase"`
-	SqliteDBPath  string `toml:"sqliteDBPath"`
 	JWTSigningKey string `toml:"jwtSigningKey"`
-	DB            string `toml:"db"`
-	Postgre       `toml:"postgre"`
-	GitHubToken   string `toml:"githubToken"`
+
+	GitClient   string `toml:"gitClient"`
+	GitHubToken string `toml:"githubToken"`
+	GitLabToken string `toml:"gitlabToken"`
+
+	DB           string `toml:"db"`
+	SqliteDBPath string `toml:"sqliteDBPath"`
+	Postgre      `toml:"postgre"`
 }
 
 func New() (Config, error) {

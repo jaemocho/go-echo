@@ -22,12 +22,23 @@
 
     [github RestAPI]
     github.com/google/go-github/v50/github
+    
+    [gitlab RestAPI]
+    github.com/xanzy/go-gitlab
 ```
 
 > local start 
 
 ```
     config/config.toml 작성
+    
+    # github/gitlab 선택 가능 default github
+    # git client 선택 github or gitlab
+    gitClient = "github"
+    
+    # sqlite/postgre 선택 가능 default sqlite
+    # db 선택 sqlite or postgre
+    db ="postgre"
 
     go run main.go
 ```
@@ -40,7 +51,7 @@
   + docs                    … swagger
   + internal
     + pkg
-      + domain              … github api client handler
+      + domain              … github/gitlab api client handler
       + model               … db 관련 handelr(sqlite/postgres)       
       + security            … jwt 인증
       + github              … github RestAPI

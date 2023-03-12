@@ -8,8 +8,12 @@ jwtSigningKey = "jwtkey"
 # sqlite 사용 시 db 생성 경로 
 sqliteDBPath = "./gorm.db"
 
-# github auth token
+# git client 선택 github or gitlab
+gitClient = "github"
+
+# github/gitlab auth token
 githubToken = ""
+gitlabToken = ""
 
 # db 선택 sqlite or postgre
 db ="postgre"

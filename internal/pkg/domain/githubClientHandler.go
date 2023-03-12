@@ -43,7 +43,8 @@ func (g *GithubClientHandler) GetRepoList(owner string) ([]*GitRepo, error) {
 
 	for i, v := range repos {
 		gitRepo[i] = &GitRepo{
-			Name: v.GetName(),
+			Name:        v.GetName(),
+			Description: v.GetDescription(),
 		}
 	}
 

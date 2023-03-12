@@ -15,18 +15,18 @@ type GitHandler struct {
 func NewGitHandler(echo *echo.Echo, cfg config.Config) *GitHandler {
 
 	handler := &GitHandler{
-		client: domain.NewGithubClientHandler(cfg),
+		client: domain.NewGitClientHandler(cfg),
 	}
 
-	github := echo.Group("/api/v1/github")
+	gitClient := echo.Group("/api/v1/github")
 	{
-		github.GET("/:owner", handler.getReposByOwner)
-		github.POST("/:owner", handler.createRepo)
-		github.GET("/:owner/:repo", handler.getWorkflowsByRepo)
-		github.DELETE("/:owner/:repo", handler.deleteRepo)
+		gitClient.GET("/:owner", handler.getReposByOwner)
+		gitClient.POST("/:owner", handler.createRepo)
+		gitClient.GET("/:owner/:repo", handler.getWorkflowsByRepo)
+		gitClient.DELETE("/:owner/:repo", handler.deleteRepo)
 
-		github.POST("/issue/:owner/:repo", handler.createIssue)
-		github.GET("/issue/:owner/:repo", handler.getIssuesByRepo)
+		gitClient.POST("/issue/:owner/:repo", handler.createIssue)
+		gitClient.GET("/issue/:owner/:repo", handler.getIssuesByRepo)
 	}
 
 	return handler
