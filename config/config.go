@@ -31,6 +31,8 @@ type Config struct {
 	DB           string `toml:"db"`
 	SqliteDBPath string `toml:"sqliteDBPath"`
 	Postgre      `toml:"postgre"`
+
+	ClusterToken string `toml:"clusterToken"`
 }
 
 func New() (Config, error) {

@@ -28,3 +28,5 @@ sslmode = "disable"
 timeZone = "Asia/Seoul"
 
 
+#k8s cluster access token
+clusterToken = "clusterToken"
