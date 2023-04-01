@@ -51,7 +51,7 @@
   + docs                    … swagger
   + internal
     + pkg
-      + domain              … github/gitlab api client handler
+      + domain              … github/gitlab api client handler, k8s client handler
       + model               … db 관련 handelr(sqlite/postgres)       
       + security            … jwt 인증
       + github              … github RestAPI
