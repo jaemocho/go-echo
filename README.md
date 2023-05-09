@@ -83,7 +83,14 @@
 ![default](image/swagger.PNG)
 
 
+> 구성 
 
+```
+ Business Layer, Persistence Layer 분리가 필요 
+ 폴더 구조 정비 필요
+```
+
+![default](image/arch.PNG)
 
    
 
