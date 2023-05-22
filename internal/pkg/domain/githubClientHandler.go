@@ -60,17 +60,21 @@ func (g *GithubClientHandler) GetWorkflowList(owner, repo string) ([]*GitWorkflo
 	}
 
 	if cnt := *workflows.TotalCount; cnt > 0 {
-		gitWorkFlow := make([]*GitWorkflow, cnt)
-		for i, v := range workflows.Workflows {
-			gitWorkFlow[i] = &GitWorkflow{
-				Id:   v.GetID(),
-				Name: v.GetName(),
-			}
-
-		}
+		gitWorkFlow := createWorkflowList(workflows.Workflows, cnt)
 		return gitWorkFlow, nil
 	}
 	return nil, err
+}
+
+func createWorkflowList(workflows []*github.Workflow, cnt int) []*GitWorkflow {
+	gitWorkFlow := make([]*GitWorkflow, cnt)
+	for i, v := range workflows {
+		gitWorkFlow[i] = &GitWorkflow{
+			Id:   v.GetID(),
+			Name: v.GetName(),
+		}
+	}
+	return gitWorkFlow
 }
 
 func (g *GithubClientHandler) CreateWorkflowDispatchEventByFileName(owner, repo, workflowFileName, branch string, inputs map[string]interface{}) error {
@@ -92,13 +96,13 @@ func (g *GithubClientHandler) CreateWorkflowDispatchEventByFileName(owner, repo,
 	return nil
 }
 
-func (g *GithubClientHandler) CreateRepo(name, description string, isPrivate, isAutoInit bool) (*GitRepo, error) {
+func (g *GithubClientHandler) CreateRepo(createGitRepoRequest *CreateGitRepoRequest) (*GitRepo, error) {
 
 	r := &github.Repository{
-		Name:        &name,
-		Private:     &isPrivate,
-		Description: &description,
-		AutoInit:    &isAutoInit,
+		Name:        &createGitRepoRequest.Name,
+		Private:     &createGitRepoRequest.IsPrivate,
+		Description: &createGitRepoRequest.Description,
+		AutoInit:    &createGitRepoRequest.IsAutoInt,
 	}
 
 	repo, _, err := g.client.Repositories.Create(context.Background(), "", r)

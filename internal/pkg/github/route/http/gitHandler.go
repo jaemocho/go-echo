@@ -89,14 +89,14 @@ func (g *GitHandler) getWorkflowsByRepo(c echo.Context) error {
 // @Security	ApiKeyAuth
 func (g *GitHandler) createRepo(c echo.Context) error {
 
-	gitRepo := new(domain.CreateGitRepoRequest)
+	createGitRepoRequest := new(domain.CreateGitRepoRequest)
 
-	if err := c.Bind(gitRepo); err != nil {
+	if err := c.Bind(createGitRepoRequest); err != nil {
 		c.Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	repo, err := g.client.CreateRepo(gitRepo.Name, gitRepo.Description, gitRepo.IsPrivate, gitRepo.IsAutoInt)
+	repo, err := g.client.CreateRepo(createGitRepoRequest)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)

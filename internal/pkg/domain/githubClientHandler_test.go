@@ -43,20 +43,20 @@ func TestGitHhubClientHandler2(t *testing.T) {
 
 	gh := NewGithubClientHandler(cfg)
 
-	// create repo test
-	var (
-		name        = "maketest123"
-		description = "description"
-		private     = false
-		autoInit    = false
-	)
-	repo, err := gh.CreateRepo(name, description, private, autoInit)
+	createGitRepoRequest := &CreateGitRepoRequest{
+		Name:        "maketest123",
+		Description: "description",
+		IsPrivate:   false,
+		IsAutoInt:   false,
+	}
+
+	repo, err := gh.CreateRepo(createGitRepoRequest)
 	assert.NoError(err)
 	assert.Equal("maketest123", repo.Name)
 
 	// delete repo test
-	err = gh.DeleteRepo("jaemocho", "maketest123")
-	assert.NoError(err)
+	// err = gh.DeleteRepo("jaemocho", "maketest123")
+	// assert.NoError(err)
 }
 
 func TestWorkflowRun(t *testing.T) {

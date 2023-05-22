@@ -22,58 +22,43 @@ type K8sClientSetHandler struct {
 }
 
 func NewK8sClientSetHandler(cfg config.Config) *K8sClientSetHandler {
-
 	clientConfig, _ := clientcmd.NewClientConfigFromBytes([]byte(cfg.ClusterToken))
-
 	restConfig, _ := clientConfig.ClientConfig()
-
 	clientSet, err := kubernetes.NewForConfig(restConfig)
-
 	if err != nil {
 		log.Printf("NewForConfig returned error: %v", err)
 		return nil
 	}
-
 	return &K8sClientSetHandler{
 		clientSet: clientSet,
 	}
-
 }
 
 func (k *K8sClientSetHandler) GetPodList(namespace, cluster string) ([]*PodInfo, error) {
-
 	pods, err := k.clientSet.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-
 	if err != nil {
 		log.Printf("GetPodList returned error: %v", err)
 		return nil, err
 	}
+	returnPodList := createReturnPodList(pods)
+	return returnPodList, nil
+}
 
+func createReturnPodList(pods *v1.PodList) []*PodInfo {
 	returnPodList := make([]*PodInfo, len(pods.Items))
 
 	for i, v := range pods.Items {
-
 		totalCount := len(v.Status.ContainerStatuses)
 		currentCount := 0
 		podState := "Running"
-
 		for j := 0; j < totalCount; j++ {
-			if *v.Status.ContainerStatuses[j].Started {
+			if isContainerStarted(v.Status.ContainerStatuses[j]) {
 				currentCount++
 			} else {
-				if v.Status.ContainerStatuses[j].State.Waiting != nil {
-					podState = v.Status.ContainerStatuses[j].State.Waiting.Reason
-				} else {
-					podState = v.Status.ContainerStatuses[j].State.Terminated.Reason
-				}
+				podState = getContainerStatus(v.Status.ContainerStatuses[j])
 			}
 		}
-
-		var restartCount int32 = 0
-		if len(v.Status.ContainerStatuses) > 0 {
-			restartCount = v.Status.ContainerStatuses[0].RestartCount
-		}
-
+		restartCount := getRestartCount(v.Status.ContainerStatuses)
 		returnPodList[i] = &PodInfo{
 			Name:         v.Name,
 			CurrentCount: currentCount,
@@ -85,9 +70,27 @@ func (k *K8sClientSetHandler) GetPodList(namespace, cluster string) ([]*PodInfo,
 			Age:          v.Status.StartTime.Time.String(),
 		}
 	}
+	return returnPodList
+}
 
-	return returnPodList, nil
+func isContainerStarted(containerStatus v1.ContainerStatus) bool {
+	return *containerStatus.Started
+}
 
+func getContainerStatus(containerStatus v1.ContainerStatus) string {
+	if containerStatus.State.Waiting != nil {
+		return containerStatus.State.Waiting.Reason
+	} else {
+		return containerStatus.State.Terminated.Reason
+	}
+}
+
+func getRestartCount(containerStatuses []v1.ContainerStatus) int32 {
+	var restartCount int32 = 0
+	if len(containerStatuses) > 0 {
+		restartCount = containerStatuses[0].RestartCount
+	}
+	return restartCount
 }
 
 func (k *K8sClientSetHandler) GetPodEvent(namespace, podName string) (*v1.EventList, error) {
@@ -159,23 +162,36 @@ func (k *K8sClientSetHandler) GetPodDesc(namespace, podName string) (string, err
 	podDesc.WriteString("Node: " + result.Spec.NodeName + "\n")
 	podDesc.WriteString("Start Time: " + result.Status.StartTime.String() + "\n")
 
-	labelMap := result.GetObjectMeta().GetLabels()
-	podDesc.WriteString("Labels: " + "\n")
-
-	for key, v := range labelMap {
-		podDesc.WriteString("             " + key + "=" + v + "\n")
-	}
-	annotationMap := result.ObjectMeta.GetAnnotations()
-	podDesc.WriteString("Annotations: " + "\n")
-	for key, v := range annotationMap {
-		podDesc.WriteString("             " + key + ": " + v + "\n")
-	}
+	getLabels(&podDesc, result.GetObjectMeta().GetLabels())
+	getAnnotations(&podDesc, result.ObjectMeta.GetAnnotations())
 
 	podDesc.WriteString("Status: " + string(result.Status.Phase) + "\n")
 	podDesc.WriteString("IP: " + result.Status.PodIP + "\n")
 
+	getContainers(&podDesc, result.Status.ContainerStatuses)
+	getContainerSpec(&podDesc, result.Spec.Containers)
+	getVolumes(&podDesc, result.Spec.Volumes)
+	getPodStatus(&podDesc, result.Status.Conditions)
+	return podDesc.String(), nil
+}
+
+func getLabels(podDesc *bytes.Buffer, labelMap map[string]string) {
+	podDesc.WriteString("Labels: " + "\n")
+	for key, v := range labelMap {
+		podDesc.WriteString("             " + key + "=" + v + "\n")
+	}
+}
+
+func getAnnotations(podDesc *bytes.Buffer, annotationMap map[string]string) {
+	podDesc.WriteString("Annotations: " + "\n")
+	for key, v := range annotationMap {
+		podDesc.WriteString("             " + key + ": " + v + "\n")
+	}
+}
+
+func getContainers(podDesc *bytes.Buffer, containerStatuses []v1.ContainerStatus) {
 	podDesc.WriteString("Containers: " + "\n")
-	for _, v := range result.Status.ContainerStatuses {
+	for _, v := range containerStatuses {
 		podDesc.WriteString("  " + v.Name + "\n")
 		podDesc.WriteString("    Container ID: " + v.ContainerID + "\n")
 		podDesc.WriteString("    Image: " + v.Image + "\n")
@@ -195,8 +211,10 @@ func (k *K8sClientSetHandler) GetPodDesc(namespace, podName string) (string, err
 		podDesc.WriteString("    Restart Count: " + strconv.Itoa(int(v.RestartCount)) + "\n")
 
 	}
+}
 
-	for _, v := range result.Spec.Containers {
+func getContainerSpec(podDesc *bytes.Buffer, containers []v1.Container) {
+	for _, v := range containers {
 		podDesc.WriteString("  " + v.Name + "\n")
 		//podDesc.WriteString( "    Image: " + val.Image + "\n")
 		for _, portVal := range v.Ports {
@@ -221,9 +239,12 @@ func (k *K8sClientSetHandler) GetPodDesc(namespace, podName string) (string, err
 			podDesc.WriteString("        SubPath: " + volumeMountsVal.SubPath + "\n")
 		}
 	}
+}
+
+func getVolumes(podDesc *bytes.Buffer, volumes []v1.Volume) {
 
 	podDesc.WriteString("Volumes: " + "\n")
-	for _, v := range result.Spec.Volumes {
+	for _, v := range volumes {
 		podDesc.WriteString("  " + v.Name + "\n")
 
 		v := reflect.ValueOf(v.VolumeSource)
@@ -237,9 +258,11 @@ func (k *K8sClientSetHandler) GetPodDesc(namespace, podName string) (string, err
 		}
 
 	}
+}
 
+func getPodStatus(podDesc *bytes.Buffer, podConditions []v1.PodCondition) {
 	podDesc.WriteString("PodStatus: " + "\n")
-	for i, v := range result.Status.Conditions {
+	for i, v := range podConditions {
 		podDesc.WriteString("  [" + strconv.Itoa(i) + "]\n")
 		podDesc.WriteString("  Type: " + string(v.Type) + "\n")
 		podDesc.WriteString("  Type: " + string(v.Type) + "\n")
@@ -253,7 +276,4 @@ func (k *K8sClientSetHandler) GetPodDesc(namespace, podName string) (string, err
 		podDesc.WriteString("  Messae: " + string(v.Message) + "\n")
 
 	}
-
-	return podDesc.String(), nil
-
 }

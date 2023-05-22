@@ -7,7 +7,7 @@ type GitClientHandler interface {
 	GetRepoList(owner string) ([]*GitRepo, error)
 	GetWorkflowList(owner, repo string) ([]*GitWorkflow, error)
 	CreateWorkflowDispatchEventByFileName(owner, repo, workflowFileName, branch string, inputs map[string]interface{}) error
-	CreateRepo(name, description string, isPrivate, isAutoInt bool) (*GitRepo, error)
+	CreateRepo(createGitRepoRequest *CreateGitRepoRequest) (*GitRepo, error)
 	DeleteRepo(owner, repo string) error
 	CreateIssue(owner, repo string, issueRequest *CreateGitIssueRequest) (*GitIssue, error)
 	GetIssueList(owner, repo string) ([]*GitIssue, error)

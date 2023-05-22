@@ -55,20 +55,20 @@ func (g *GitlabClientHandler) CreateWorkflowDispatchEventByFileName(owner, repo,
 	return nil
 }
 
-func (g *GitlabClientHandler) CreateRepo(name, description string, isPrivate, isAutoInit bool) (*GitRepo, error) {
+func (g *GitlabClientHandler) CreateRepo(createGitRepoRequest *CreateGitRepoRequest) (*GitRepo, error) {
 
 	var visibility *gitlab.VisibilityValue
-	if !isPrivate {
+	if !createGitRepoRequest.IsPrivate {
 		visibility = gitlab.Visibility(gitlab.PublicVisibility)
 	} else {
 		visibility = gitlab.Visibility(gitlab.PrivateVisibility)
 	}
 
 	opt := &gitlab.CreateProjectOptions{
-		Name:                 &name,
-		Description:          &description,
+		Name:                 &createGitRepoRequest.Name,
+		Description:          &createGitRepoRequest.Description,
 		Visibility:           visibility,
-		InitializeWithReadme: &isAutoInit,
+		InitializeWithReadme: &createGitRepoRequest.IsAutoInt,
 	}
 
 	project, _, err := g.client.Projects.CreateProject(opt)
@@ -81,7 +81,7 @@ func (g *GitlabClientHandler) CreateRepo(name, description string, isPrivate, is
 	gitRepo := &GitRepo{
 		Name:        project.Name,
 		Description: project.Description,
-		IsPrivate:   isPrivate,
+		IsPrivate:   createGitRepoRequest.IsPrivate,
 	}
 
 	return gitRepo, err

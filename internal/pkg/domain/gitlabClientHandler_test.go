@@ -34,14 +34,13 @@ func TestGitlabCreateRepo(t *testing.T) {
 
 	gh := NewGitlabClientHandler(cfgLab)
 
-	// create repo test
-	var (
-		name        = "maketest123"
-		description = "description"
-		private     = false
-		autoInit    = true
-	)
-	repo, err := gh.CreateRepo(name, description, private, autoInit)
+	createGitRepoRequest := &CreateGitRepoRequest{
+		Name:        "maketest123",
+		Description: "description",
+		IsPrivate:   false,
+		IsAutoInt:   false,
+	}
+	repo, err := gh.CreateRepo(createGitRepoRequest)
 	assert.NoError(err)
 	assert.Equal("maketest123", repo.Name)
 
